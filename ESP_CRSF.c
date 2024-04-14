@@ -18,17 +18,16 @@ void CRSF_init(crsf_config_t *config)
     };
     uart_param_config(config->uart_num, &uart_config);
     uart_set_pin(uart_num, config->tx_pin, config->rx_pin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    //uart_enable_rx_intr(uart_num);
     // Setup UART buffered IO with event queue
     const int uart_buffer_size = (1024 * 2);
-    QueueHandle_t uart_queue;
     // Install UART driver using an event queue here
-    ESP_ERROR_CHECK(uart_driver_install(uart_num, uart_buffer_size, \
-                                            uart_buffer_size, 10, &uart_queue, 0));
+    ESP_ERROR_CHECK(uart_driver_install(uart_num, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
     
 }
 
 //receive uart data frame
-void CRSF_receive(uint8_t *data)
+void CRSF_receive(crsf_channels_t *channels)
 {
 
     //read first 3 bytes to check destination length and type
@@ -51,33 +50,17 @@ void CRSF_receive(uint8_t *data)
     
     //print payload
     if (type == 22) {
-        printf("Correct type\n");
+        // printf("Correct type\n");
 
-        crsf_channels_t *channels = (crsf_channels_t *)payload;
-        printf("Channel 1: %d\n", channels->ch1);
-        printf("Channel 2: %d\n", channels->ch2);
-        printf("Channel 3: %d\n", channels->ch3);
-        printf("Channel 4: %d\n", channels->ch4);
-        printf("Channel 5: %d\n", channels->ch5);
-        printf("Channel 6: %d\n", channels->ch6);
-        printf("Channel 7: %d\n", channels->ch7);
-        printf("Channel 8: %d\n", channels->ch8);
-        printf("Channel 9: %d\n", channels->ch9);
-        printf("Channel 10: %d\n", channels->ch10);
-        printf("Channel 11: %d\n", channels->ch11);
-        printf("Channel 12: %d\n", channels->ch12);
-        printf("Channel 13: %d\n", channels->ch13);
-        printf("Channel 14: %d\n", channels->ch14);
-        printf("Channel 15: %d\n", channels->ch15);
-        printf("Channel 16: %d\n", channels->ch16);
-        printf("\n");
+        crsf_channels_t *data = (crsf_channels_t*)payload;
+        *channels = *data;
 
     }
 
     //read CRC
     uint8_t crc;
     uart_read_bytes(uart_num, &crc, 1, 100 / portTICK_PERIOD_MS);
-    printf("CRC: %d\n", crc);
+    // printf("CRC: %d\n", crc);
 
     
 

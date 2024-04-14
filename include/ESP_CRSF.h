@@ -1,9 +1,11 @@
+#include "stdio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
+#include "esp_intr_alloc.h"
 
 
 #define TAG "CRSF"
@@ -38,4 +40,4 @@ typedef struct
 } crsf_config_t;
 
 void CRSF_init(crsf_config_t *config);
-void CRSF_receive(uint8_t *data);
+void CRSF_receive(crsf_channels_t *channels);
