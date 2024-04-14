@@ -3,20 +3,6 @@
 
 static int uart_num = 1;
 
-#define MSBpos 1
-#define LSBpos 0
-
-uint8_t generate_mask(uint8_t number_of_ones, uint8_t position)
-{
-    if (position == MSBpos) {
-        return (uint8_t)(0xFF << (8 - number_of_ones));
-    } else if (position == LSBpos) {
-        return (uint8_t)((1 << number_of_ones) - 1);
-    }
-    return 0;
-
-}
-
 void CRSF_init(crsf_config_t *config)
 {
     uart_num = config->uart_num;
