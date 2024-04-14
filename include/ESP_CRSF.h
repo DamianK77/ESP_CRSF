@@ -12,7 +12,6 @@
 
 typedef struct __attribute__((packed))
 {
-    unsigned ch0 : 11;
     unsigned ch1 : 11;
     unsigned ch2 : 11;
     unsigned ch3 : 11;
@@ -28,6 +27,7 @@ typedef struct __attribute__((packed))
     unsigned ch13 : 11;
     unsigned ch14 : 11;
     unsigned ch15 : 11;
+    unsigned ch16 : 11;
 } crsf_channels_t;
 
 typedef struct

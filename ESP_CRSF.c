@@ -46,20 +46,30 @@ void CRSF_receive(uint8_t *data)
     uint8_t payload_length = length - 2;
     uint8_t payload[payload_length];
 
-    //uart_read_bytes(uart_num, payload, payload_length, 100 / portTICK_PERIOD_MS);
     uart_read_bytes(uart_num, payload, payload_length, 100 / portTICK_PERIOD_MS);
 
     
-    uint16_t channel_values[16]; // Array to hold 16 11-bit numbers
     //print payload
     if (type == 22) {
         printf("Correct type\n");
 
         crsf_channels_t *channels = (crsf_channels_t *)payload;
-        printf("Channel 0: %d\n", channels->ch0);
         printf("Channel 1: %d\n", channels->ch1);
         printf("Channel 2: %d\n", channels->ch2);
         printf("Channel 3: %d\n", channels->ch3);
+        printf("Channel 4: %d\n", channels->ch4);
+        printf("Channel 5: %d\n", channels->ch5);
+        printf("Channel 6: %d\n", channels->ch6);
+        printf("Channel 7: %d\n", channels->ch7);
+        printf("Channel 8: %d\n", channels->ch8);
+        printf("Channel 9: %d\n", channels->ch9);
+        printf("Channel 10: %d\n", channels->ch10);
+        printf("Channel 11: %d\n", channels->ch11);
+        printf("Channel 12: %d\n", channels->ch12);
+        printf("Channel 13: %d\n", channels->ch13);
+        printf("Channel 14: %d\n", channels->ch14);
+        printf("Channel 15: %d\n", channels->ch15);
+        printf("Channel 16: %d\n", channels->ch16);
         printf("\n");
 
     }
@@ -67,6 +77,8 @@ void CRSF_receive(uint8_t *data)
     //read CRC
     uint8_t crc;
     uart_read_bytes(uart_num, &crc, 1, 100 / portTICK_PERIOD_MS);
+    printf("CRC: %d\n", crc);
+
     
 
 }
