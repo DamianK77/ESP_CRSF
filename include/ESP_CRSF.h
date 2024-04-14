@@ -8,6 +8,28 @@
 
 #define TAG "CRSF"
 
+#define LSB3BITMASK 0b00000111
+
+typedef struct __attribute__((packed))
+{
+    unsigned ch0 : 11;
+    unsigned ch1 : 11;
+    unsigned ch2 : 11;
+    unsigned ch3 : 11;
+    unsigned ch4 : 11;
+    unsigned ch5 : 11;
+    unsigned ch6 : 11;
+    unsigned ch7 : 11;
+    unsigned ch8 : 11;
+    unsigned ch9 : 11;
+    unsigned ch10 : 11;
+    unsigned ch11 : 11;
+    unsigned ch12 : 11;
+    unsigned ch13 : 11;
+    unsigned ch14 : 11;
+    unsigned ch15 : 11;
+} crsf_channels_t;
+
 typedef struct
 {
     uint8_t uart_num;

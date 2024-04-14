@@ -3,6 +3,20 @@
 
 static int uart_num = 1;
 
+#define MSBpos 1
+#define LSBpos 0
+
+uint8_t generate_mask(uint8_t number_of_ones, uint8_t position)
+{
+    if (position == MSBpos) {
+        return (uint8_t)(0xFF << (8 - number_of_ones));
+    } else if (position == LSBpos) {
+        return (uint8_t)((1 << number_of_ones) - 1);
+    }
+    return 0;
+
+}
+
 void CRSF_init(crsf_config_t *config)
 {
     uart_num = config->uart_num;
@@ -32,9 +46,10 @@ void CRSF_receive(uint8_t *data)
 {
 
     //read first 3 bytes to check destination length and type
-    uint8_t header[8];
+    uint8_t header[3];
     uart_flush_input(uart_num);
-    uart_read_bytes(uart_num, header, 8, 100 / portTICK_PERIOD_MS);
+    uart_flush(uart_num);
+    uart_read_bytes(uart_num, header, 3, 100 / portTICK_PERIOD_MS);
 
     //extract length and type
     uint8_t type = header[2];
@@ -44,19 +59,24 @@ void CRSF_receive(uint8_t *data)
     //read the rest of the frame
     uint8_t payload_length = length - 2;
     uint8_t payload[payload_length];
+
+    //uart_read_bytes(uart_num, payload, payload_length, 100 / portTICK_PERIOD_MS);
     uart_read_bytes(uart_num, payload, payload_length, 100 / portTICK_PERIOD_MS);
 
+    
+    uint16_t channel_values[16]; // Array to hold 16 11-bit numbers
     //print payload
     if (type == 22) {
         printf("Correct type\n");
-        for (int i = 0; i < payload_length; i++) {
-            printf("Payload[%d]: %d\n", i, payload[i]);
-        }
+
+        crsf_channels_t *channels = (crsf_channels_t *)payload;
+        printf("Channel 0: %d\n", channels->ch0);
+        printf("Channel 1: %d\n", channels->ch1);
+        printf("Channel 2: %d\n", channels->ch2);
+        printf("Channel 3: %d\n", channels->ch3);
+        printf("\n");
+
     }
-
-    printf("Type: %d\n", type);
-
-    printf("\n");
 
     //read CRC
     uint8_t crc;
