@@ -1,7 +1,31 @@
 #include <stdio.h>
 #include "ESP_CRSF.h"
 
+#define RX_BUF_SIZE 1024    //UART buffer size
+
 static int uart_num = 1;
+static QueueHandle_t uart_queue;
+crsf_channels_t channels;
+
+static void rx_task(void *arg)
+{
+    uart_event_t event;
+    uint8_t* dtmp = (uint8_t*) malloc(RX_BUF_SIZE);
+    for (;;) {
+        //Waiting for UART event.
+        if (xQueueReceive(uart_queue, (void *)&event, (TickType_t)portMAX_DELAY)) {
+            bzero(dtmp, RX_BUF_SIZE);
+            if (event.type == UART_DATA ) {
+                ESP_LOGI(TAG, "[UART DATA]: %d", event.size);
+                uart_read_bytes(uart_num, dtmp, event.size, portMAX_DELAY);
+                ESP_LOGI(TAG, "Data: %s", dtmp);
+            }
+        }
+    }
+    free(dtmp);
+    dtmp = NULL;
+    vTaskDelete(NULL);
+}
 
 void CRSF_init(crsf_config_t *config)
 {
@@ -19,10 +43,11 @@ void CRSF_init(crsf_config_t *config)
     uart_param_config(config->uart_num, &uart_config);
     uart_set_pin(uart_num, config->tx_pin, config->rx_pin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     //uart_enable_rx_intr(uart_num);
-    // Setup UART buffered IO with event queue
-    const int uart_buffer_size = (1024 * 2);
-    // Install UART driver using an event queue here
-    ESP_ERROR_CHECK(uart_driver_install(uart_num, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
+    // Install UART driver
+    ESP_ERROR_CHECK(uart_driver_install(uart_num, RX_BUF_SIZE, RX_BUF_SIZE, 10, &uart_queue, 0));
+
+    //create task
+    xTaskCreate(rx_task, "uart_rx_task", 1024*4, NULL, configMAX_PRIORITIES-1, NULL);
     
 }
 

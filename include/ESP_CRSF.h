@@ -6,11 +6,12 @@
 #include "sdkconfig.h"
 #include "esp_log.h"
 #include "esp_intr_alloc.h"
+#include <string.h>
+#include "freertos/queue.h"
 
 
 #define TAG "CRSF"
 
-#define LSB3BITMASK 0b00000111
 
 typedef struct __attribute__((packed))
 {
