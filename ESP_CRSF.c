@@ -3,9 +3,12 @@
 
 #define RX_BUF_SIZE 1024    //UART buffer size
 
+
+SemaphoreHandle_t xMutex;
+
 static int uart_num = 1;
 static QueueHandle_t uart_queue;
-crsf_channels_t *received_channels = {0};
+crsf_channels_t received_channels = {0};
 
 static void rx_task(void *arg)
 {
@@ -16,7 +19,7 @@ static void rx_task(void *arg)
         if (xQueueReceive(uart_queue, (void *)&event, (TickType_t)portMAX_DELAY)) {
             bzero(dtmp, RX_BUF_SIZE);
             if (event.type == UART_DATA ) {
-                ESP_LOGI(TAG, "[UART DATA]: %d", event.size);
+                //ESP_LOGI(TAG, "[UART DATA]: %d", event.size);
                 uart_read_bytes(uart_num, dtmp, event.size, portMAX_DELAY);
 
                 //extract length and type
@@ -34,11 +37,13 @@ static void rx_task(void *arg)
 
                 //todo CRC
 
-                if (dtmp[2] == 22) {
+                if (type == 22) {
+                    
+                    xSemaphoreTake(xMutex, portMAX_DELAY);
+                    received_channels = *(crsf_channels_t*)payload;
+                    xSemaphoreGive(xMutex);
 
-                    received_channels = (crsf_channels_t*)payload;
-
-                    printf(">Channel1: %d\n", received_channels->ch1);
+                    //printf(">Channel1: %d\n", received_channels.ch1);
                     // *received_channels = *data;
                 }
             }
@@ -67,17 +72,17 @@ void CRSF_init(crsf_config_t *config)
     // Install UART driver
     ESP_ERROR_CHECK(uart_driver_install(uart_num, RX_BUF_SIZE, RX_BUF_SIZE, 10, &uart_queue, 0));
 
+    //create semaphore
+    xMutex = xSemaphoreCreateMutex();
     //create task
     xTaskCreate(rx_task, "uart_rx_task", 1024*4, NULL, configMAX_PRIORITIES-1, NULL);
     
 }
 
 //receive uart data frame
-void CRSF_receive(crsf_channels_t *channels)
+void CRSF_receive_channels(crsf_channels_t *channels)
 {
-
-    //*channels = *received_channels;    
-
+    *channels = received_channels;
 }
 
 

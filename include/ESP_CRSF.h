@@ -8,6 +8,8 @@
 #include "esp_intr_alloc.h"
 #include <string.h>
 #include "freertos/queue.h"
+#include "freertos/semphr.h"
+
 
 
 #define TAG "CRSF"
@@ -41,4 +43,4 @@ typedef struct
 } crsf_config_t;
 
 void CRSF_init(crsf_config_t *config);
-void CRSF_receive(crsf_channels_t *channels);
+void CRSF_receive_channels(crsf_channels_t *channels);
