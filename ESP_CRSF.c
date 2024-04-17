@@ -82,7 +82,9 @@ void CRSF_init(crsf_config_t *config)
 //receive uart data frame
 void CRSF_receive_channels(crsf_channels_t *channels)
 {
+    xSemaphoreTake(xMutex, portMAX_DELAY);
     *channels = received_channels;
+    xSemaphoreGive(xMutex);
 }
 
 
