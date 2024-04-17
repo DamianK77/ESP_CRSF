@@ -2,6 +2,8 @@
 
 This component connects to an RX module via UART and decodes incoming data based on the CRSF protocol. Currently in early development.
 
+This repo was heavily influenced by a repo by AlfredoSystems (https://github.com/AlfredoSystems/AlfredoCRSF). Thanks!
+
 ## Functions
 - Reading data from channels 1-16
 - more (telemetry, different data types) to be added
