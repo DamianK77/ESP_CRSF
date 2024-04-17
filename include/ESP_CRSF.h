@@ -14,6 +14,13 @@
 
 #define TAG "CRSF"
 
+typedef struct
+{
+    uint8_t uart_num;
+    uint8_t tx_pin;
+    uint8_t rx_pin;
+} crsf_config_t;
+
 
 typedef struct __attribute__((packed))
 {
@@ -35,12 +42,27 @@ typedef struct __attribute__((packed))
     unsigned ch16 : 11;
 } crsf_channels_t;
 
-typedef struct
+
+typedef struct __attribute__((packed))
 {
-    uint8_t uart_num;
-    uint8_t tx_pin;
-    uint8_t rx_pin;
-} crsf_config_t;
+    unsigned voltage : 16;  // V * 10 big endian
+    unsigned current : 16;  // A * 10 big endian
+    unsigned capacity : 24; // mah big endian
+    unsigned remaining : 8; // %
+} crsf_battery_t;
+
+typedef enum
+{
+    CRSF_TYPE_CHANNELS = 22,
+    CRSF_TYPE_BATTERY = 8
+} crsf_type_t;
+
+typedef enum
+{
+    CRSF_DEST_FC = 0xC8,
+    CRSF_DEST_RADIO = 0xEA
+} crsf_dest_t;
 
 void CRSF_init(crsf_config_t *config);
 void CRSF_receive_channels(crsf_channels_t *channels);
+void CRSF_send(crsf_dest_t dest, crsf_type_t type, const void* payload, uint8_t payload_length);

@@ -3,12 +3,41 @@
 
 #define RX_BUF_SIZE 1024    //UART buffer size
 
+// CRC8 lookup table (poly 0xd5)
+static uint8_t crc8_table[256] = {0};
+
+void generate_CRC(uint8_t poly)
+{
+    for (int idx=0; idx<256; ++idx)
+    {
+        uint8_t crc = idx;
+        for (int shift=0; shift<8; ++shift)
+        {
+            crc = (crc << 1) ^ ((crc & 0x80) ? poly : 0);
+        }
+        crc8_table[idx] = crc & 0xff;
+    }
+}
+
+// Function to calculate CRC8 checksum
+uint8_t crc8(const uint8_t *data, uint8_t len) {
+    uint8_t crc = 0;
+    while (len--)
+    {
+        crc = crc8_table[crc ^ *data++];
+    }
+
+    return crc;
+}
+
 
 SemaphoreHandle_t xMutex;
 
 static int uart_num = 1;
 static QueueHandle_t uart_queue;
 crsf_channels_t received_channels = {0};
+crsf_battery_t received_battery = {0};
+
 
 static void rx_task(void *arg)
 {
@@ -35,16 +64,12 @@ static void rx_task(void *arg)
                     payload[i] = dtmp[i+3];
                 }
 
-                //todo CRC
-
-                if (type == 22) {
+                if (type == CRSF_TYPE_CHANNELS) {
                     
                     xSemaphoreTake(xMutex, portMAX_DELAY);
                     received_channels = *(crsf_channels_t*)payload;
                     xSemaphoreGive(xMutex);
 
-                    //printf(">Channel1: %d\n", received_channels.ch1);
-                    // *received_channels = *data;
                 }
             }
         }
@@ -56,6 +81,9 @@ static void rx_task(void *arg)
 
 void CRSF_init(crsf_config_t *config)
 {
+
+    generate_CRC(0xd5);
+
     uart_num = config->uart_num;
 
     //begin uart communication with RX
@@ -87,4 +115,29 @@ void CRSF_receive_channels(crsf_channels_t *channels)
     xSemaphoreGive(xMutex);
 }
 
+void CRSF_send(crsf_dest_t dest, crsf_type_t type, const void* payload, uint8_t payload_length)
+{
+
+    uint8_t packet[payload_length+4]; //payload + dest + len + type + crc
+
+    packet[0] = dest;
+    packet[1] = payload_length+2; // size of payload + type + crc
+    packet[2] = type;
+
+    memcpy(&packet[3], payload, payload_length);
+
+    //calculate crc
+    unsigned char checksum = crc8(&packet[2], payload_length+1);
+    
+    packet[payload_length+3] = checksum;
+
+    //print packet
+    // for (int i = 0; i < sizeof(packet); i++) {
+    //     printf("0x%02X ", packet[i]);
+    // }
+
+    //send frame
+    
+    uart_write_bytes(uart_num, &packet, payload_length+4);
+}
 
