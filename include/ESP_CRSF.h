@@ -14,6 +14,14 @@
 
 #define TAG "CRSF"
 
+/**
+ * @brief struct to hold the configuration of the CRSF
+ * 
+ * @param uart_num the uart controller number to use
+ * @param tx_pin the tx pin of the esp uart
+ * @param rx_pin the rx pin of the esp uart
+ * 
+ */
 typedef struct
 {
     uint8_t uart_num;
@@ -42,7 +50,15 @@ typedef struct __attribute__((packed))
     unsigned ch16 : 11;
 } crsf_channels_t;
 
-
+/**
+ * @brief struct for battery data telemetry
+ * 
+ * @param voltage the voltage of the battery in 10*V (1 = 0.1V)
+ * @param current the current of the battery in 10*A (1 = 0.1A)
+ * @param capacity the capacity of the battery in mah
+ * @param remaining the remaining percentage of the battery
+ * 
+ */
 typedef struct __attribute__((packed))
 {
     unsigned voltage : 16;  // V * 10 big endian

@@ -117,6 +117,18 @@ void CRSF_receive_channels(crsf_channels_t *channels)
 
 void CRSF_send(crsf_dest_t dest, crsf_type_t type, const void* payload, uint8_t payload_length)
 {
+    //processed payload
+    crsf_battery_t* payload_proc = 0;
+
+    //prepare payload because of big endian format in some fields
+    if(type == CRSF_TYPE_BATTERY) {
+        payload_proc = (crsf_battery_t*)payload;
+        payload_proc->voltage = __bswap16(payload_proc->voltage);
+        payload_proc->current = __bswap16(payload_proc->current);
+        payload_proc->capacity = __bswap16(payload_proc->capacity) << 8;
+    } else {
+        payload_proc = (crsf_battery_t*)payload;
+    }
 
     uint8_t packet[payload_length+4]; //payload + dest + len + type + crc
 
@@ -124,20 +136,14 @@ void CRSF_send(crsf_dest_t dest, crsf_type_t type, const void* payload, uint8_t 
     packet[1] = payload_length+2; // size of payload + type + crc
     packet[2] = type;
 
-    memcpy(&packet[3], payload, payload_length);
+    memcpy(&packet[3], payload_proc, payload_length);
 
     //calculate crc
     unsigned char checksum = crc8(&packet[2], payload_length+1);
     
     packet[payload_length+3] = checksum;
 
-    //print packet
-    // for (int i = 0; i < sizeof(packet); i++) {
-    //     printf("0x%02X ", packet[i]);
-    // }
-
     //send frame
-    
     uart_write_bytes(uart_num, &packet, payload_length+4);
 }
 
