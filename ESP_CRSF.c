@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "ESP_CRSF.h"
+#include "byteswap.h"
 
 #define RX_BUF_SIZE 1024    //UART buffer size
 
