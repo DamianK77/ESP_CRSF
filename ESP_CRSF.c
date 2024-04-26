@@ -142,21 +142,16 @@ void CRSF_send_payload(const void* payload, crsf_dest_t destination, crsf_type_t
     uart_write_bytes(uart_num, &packet, payload_length+4);
 }
 
-void CRSF_send(crsf_dest_t dest, crsf_type_t type, const void* payload, uint8_t payload_length)
+void CRSF_send_battery_data(crsf_dest_t dest, crsf_battery_t* payload)
 {
     crsf_battery_t* payload_proc = 0;
-    //prepare payload because of big endian format in some fields
-    if(type == CRSF_TYPE_BATTERY) {
-        //processed payload
-        payload_proc = (crsf_battery_t*)payload;
-        payload_proc->voltage = __bswap16(payload_proc->voltage);
-        payload_proc->current = __bswap16(payload_proc->current);
-        payload_proc->capacity = __bswap16(payload_proc->capacity) << 8;
-    } else {
-        payload_proc = (crsf_battery_t*)payload;
-    }
+    //processed payload
+    payload_proc = (crsf_battery_t*)payload;
+    payload_proc->voltage = __bswap16(payload_proc->voltage);
+    payload_proc->current = __bswap16(payload_proc->current);
+    payload_proc->capacity = __bswap16(payload_proc->capacity) << 8;
 
-    CRSF_send_payload(payload_proc, dest, type, payload_length);
+    CRSF_send_payload(payload_proc, dest, CRSF_TYPE_BATTERY, sizeof(crsf_battery_t));
 
     // uint8_t packet[payload_length+4]; //payload + dest + len + type + crc
 

@@ -81,4 +81,4 @@ typedef enum
 
 void CRSF_init(crsf_config_t *config);
 void CRSF_receive_channels(crsf_channels_t *channels);
-void CRSF_send(crsf_dest_t dest, crsf_type_t type, const void* payload, uint8_t payload_length);
+void CRSF_send_battery_data(crsf_dest_t dest, crsf_battery_t* payload);
