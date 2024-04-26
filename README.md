@@ -6,6 +6,7 @@ This repo was heavily influenced by a repo by AlfredoSystems (https://github.com
 
 ## Functions
 - Reading data from channels 1-16
+- Sending battery data back to transmitter
 - more (telemetry, different data types) to be added
 
 ## How to use
