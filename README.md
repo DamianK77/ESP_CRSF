@@ -36,7 +36,7 @@ while (1)
     battery.capacity = 1000; //capacity
     battery.remaining = 50; //remaining % of battery
 
-    CRSF_send(CRSF_DEST_FC, CRSF_TYPE_BATTERY, &battery, sizeof(crsf_battery_t));
+    CRSF_send_battery_data(CRSF_DEST_FC, &battery);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
