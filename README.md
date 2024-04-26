@@ -25,6 +25,7 @@ CRSF_init(&config);
 
 crsf_channels_t channels = {0};
 crsf_battery_t battery = {0};
+crsf_gps_t gps = {0};
 while (1)
 {
     
@@ -37,6 +38,15 @@ while (1)
     battery.remaining = 50; //remaining % of battery
 
     CRSF_send_battery_data(CRSF_DEST_FC, &battery);
+
+    gps.latitude = 42.4242 * 10000000; //42.4242 deg
+    gps.longitude = 56.5656 * 10000000; //56.5656 deg
+    gps.altitude = 5 + 1000; //5m
+    gps.groundspeed = 420; //42km/h
+    gps.heading = 90 * 100; //90 deg NOT WORKING WELL NOW
+    gps.satellites = 8; //8 satellites
+
+    CRSF_send_gps_data(CRSF_DEST_FC, &gps);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
