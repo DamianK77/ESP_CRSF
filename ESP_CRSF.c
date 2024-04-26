@@ -152,21 +152,19 @@ void CRSF_send_battery_data(crsf_dest_t dest, crsf_battery_t* payload)
     payload_proc->capacity = __bswap16(payload_proc->capacity) << 8;
 
     CRSF_send_payload(payload_proc, dest, CRSF_TYPE_BATTERY, sizeof(crsf_battery_t));
+}
 
-    // uint8_t packet[payload_length+4]; //payload + dest + len + type + crc
+void CRSF_send_gps_data(crsf_dest_t dest, crsf_gps_t* payload)
+{
+    crsf_gps_t* payload_proc = 0;
+    //processed payload
+    payload_proc = (crsf_gps_t*)payload;
+    payload_proc->latitude = __bswap32(payload_proc->latitude);
+    payload_proc->longitude = __bswap32(payload_proc->longitude);
+    payload_proc->groundspeed = __bswap16(payload_proc->groundspeed);
+    payload_proc->heading = __bswap16(payload_proc->heading);
+    payload_proc->altitude = __bswap16(payload_proc->altitude);
 
-    // packet[0] = dest;
-    // packet[1] = payload_length+2; // size of payload + type + crc
-    // packet[2] = type;
-
-    // memcpy(&packet[3], payload_proc, payload_length);
-
-    // //calculate crc
-    // unsigned char checksum = crc8(&packet[2], payload_length+1);
-    
-    // packet[payload_length+3] = checksum;
-
-    // //send frame
-    // uart_write_bytes(uart_num, &packet, payload_length+4);
+    CRSF_send_payload(payload_proc, dest, CRSF_TYPE_GPS, sizeof(crsf_gps_t));
 }
 
